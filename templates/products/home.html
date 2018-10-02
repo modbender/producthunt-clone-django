@@ -1,0 +1,79 @@
+{% extends 'layout.html' %}
+
+{% block ehead %}
+<title>Home</title>
+{% endblock %}
+
+{% block body %}
+<main role="main">
+
+  <div class="jumbotron bg-white border-bottom">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h4 class="font-weight-bold">Discover your next favorite thing</h4>
+          <small class="text-muted">Product Hunt surfaces the best new products, every day. It's a place for product-loving enthusiasts to share and geek out about the latest mobile apps, websites, hardware projects, and tech creations.</small>
+          <div class="d-block mt-3">
+            <a type="button" class="btn btn-lg btn-default btn-ph border text-white small" href="{% url 'signup' %}">
+              SIGN UP
+            </a>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <img class="img-fluid float-right" src="https://s3.producthunt.com/static/kitty_265x244%402x.png" width="240" height="220" alt="">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <div class="row">
+      <div class="col-md-8">
+
+        <div class="bg-white border rounded">
+          <h5 class="px-4 pt-4 pb-2 font-weight-normal">Newly Added Products</h5>
+          <hr class="mx-3 my-1">
+          <style media="screen">
+          .item:hover{
+            background-color: #f8f9fa;
+            cursor: pointer;
+          }
+          </style>
+          {% for product in products %}
+          <div onclick="window.location='{% url 'info' product.slug %}';" class="item row p-3">
+            <div class="col-md-auto">
+              <img class="img-fluid" src="{{product.icon.url}}" width="80" height="80" alt="">
+            </div>
+            <div class="col-md-8">
+              <div class="">
+                <h5 class="font-weight-light">{{product.title}}</h5>
+                <small class="text-muted d-block">{{product.trim}}</small>
+                <small class="text-muted d-block">{{product.votes}} votes</small>
+              </div>
+            </div>
+            <div class="col-md-auto">
+              <a type="button" class="btn btn-sm btn-default bg-white text-dark" href="javascript:{document.getElementById('upvote-{{product.id}}').submit()}">
+                <i class="fas fa-caret-up mr-2"></i>
+                <small class="text-dark">{{product.votes}}</small>
+              </a>
+            </div>
+            <form id='upvote-{{product.id}}' action="{% url 'hupvote' product.slug %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="slug" value="{{product.slug}}">
+            </form>
+          </div>
+          <hr class="my-1">
+          {% endfor %}
+        </div>
+
+      </div>
+      <div class="col-md-4">
+
+      </div>
+    </div>
+
+  </div>
+
+</main>
+{% endblock %}
