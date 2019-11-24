@@ -1,4 +1,5 @@
 {% extends 'layout.html' %}
+{% load common %}
 
 {% block ehead %}
 <title>{{ product.title }}</title>
@@ -8,12 +9,6 @@
 
 <main role="main">
   <div class="container">
-    {% if error %}
-    <div class="alert alert-warning">
-      <i class="fas fa-exclamation-triangle"></i>
-      {{error}}
-    </div>
-    {% endif %}
     <section class="d-flex flex-row flex-nowrap align-items-center px-5 pt-5 pb-4">
       <div class="mr-3">
         <img class="img-fluid" src="{{product.icon.url}}" alt="" width="80" height="80">
@@ -32,32 +27,54 @@
             <img class="img-fluid w-100" src="{{product.image.url}}" alt="">
           </div>
           <div class="border rounded bg-white p-3 text-right">
-            {{product.gdate}}
+            {{product.added_at}}
           </div>
         </div>
 
       </div>
 
       <div class="col-md-4">
-
         <div class="my-4 ml-0 mr-5 border-top">
-          <div class="p-3 border-bottom">
-            <a href="javascript:{document.getElementById('upvote').submit()}" type="button" class="btn btn-lg btn-ph rounded text-white px-5" type="button" name="button">
-              <i class="fas fa-caret-up"></i>
-              <h6 class="d-inline-block">UPVOTE</h6>
-              <small class="text-white-50 ml-2">{{product.votes}}</small>
+          <div class="p-3 border-bottom">{% is_voted product user as pvoted %}
+            <a href="{% url 'upvote' product.slug %}?next={{request.build_absolute_uri}}" class="btn btn-lg {% if not pvoted %}btn-success{% else %}btn-danger{% endif %} px-5 rounded" type="button" name="button">
+              {% if not pvoted %}
+                <i class="fas fa-caret-up fa-fw fa-lg"></i>
+                <h6 class="d-inline-block">UPVOTE</h6>
+              {% else %}
+                <i class="fas fa-caret-down fa-fw fa-lg"></i>
+                <h6 class="d-inline-block">DOWNVOTE</h6>
+              {% endif %}
             </a>
           </div>
-          <form id='upvote' action="{% url 'upvote' product.slug %}" method="post">
-            {% csrf_token %}
-            <input type="hidden">
-          </form>
 
           <div class="p-3 border-bottom">
             <a type="button" class="btn btn-sm bg-white border text-muted small" href="{{product.url}}" target="_blank">
               <i class="fab fa-safari"></i>
               {{product.url}}
             </a>
+          </div>
+          <div class="p-3 border-bottom">
+            <h5>{{product|get_votes}} vote(s)</h5>
+          </div>
+          <div class="p-3 border-bottom">
+            <h6 class="text-muted">Recent Votes</h6>
+            {% get_recent_votes product as recent_votes %}
+            <table class="table">
+              {% for uinput in recent_votes %}
+                {% with uinput.user as vote_user %}
+              <tr>
+                <td>
+                  <i class="fas fa-user"></i>
+                  {{vote_user.username}}
+                </td>
+                <td>
+                  <i class="fas fa-clock"></i>
+                  {{uinput.mod_at|timesince}}
+                </td>
+              </tr>
+              {% endwith %}
+            {% endfor %}
+            </table>
           </div>
 
         </div>

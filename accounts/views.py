@@ -1,6 +1,13 @@
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.http import Http404, HttpResponse
 from django.contrib.auth.models import User
 from django.contrib import auth
+
+def func(request):
+    if request.is_ajax() and request.GET:
+        return HttpResponse(status=200)
+    raise Http404
 
 def login(request):
     if request.method == 'POST':
@@ -27,6 +34,7 @@ def signup(request):
     else:
         return render(request, 'acc/signup.html')
 
+@login_required
 def logout(request):
     if request.method == 'POST':
         auth.logout(request)

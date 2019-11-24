@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.utils.functional import cached_property
 from django.utils import timezone
 
 class Product(models.Model):
@@ -8,11 +9,9 @@ class Product(models.Model):
     slug = models.SlugField(max_length=50)
     url = models.URLField(max_length=255)
     image = models.ImageField(upload_to='products/')
-    product_date = models.DateTimeField(default=timezone.datetime.now())
-    modified_date = models.DateTimeField(auto_now_add=True)
-    desc = models.TextField()
-    votes = models.IntegerField(default=1)
-    voter = models.ManyToManyField(User, related_name="voting_user")
+    added_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True)
+    desc = models.TextField(max_length=10000)
     icon = models.ImageField(upload_to='icons/')
     hunter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="product_hunter")
 
@@ -23,10 +22,8 @@ class Product(models.Model):
         return self.product_date.strftime('%b %e %Y')
 
     def trim(self):
-        if len(self.desc) > 40:
-            return self.desc[:40]+"..."
-        else:
-            return self.desc
+        return (self.desc[:40]+"...") if len(self.desc) > 40 else self.desc
 
+    @cached_property
     def get_absolute_url(self):
         return reverse('info', kwargs={'slug': self.slug})

@@ -1,4 +1,5 @@
 {% extends 'layout.html' %}
+{% load common %}
 
 {% block ehead %}
 <title>Home</title>
@@ -13,11 +14,11 @@
         <div class="col-md-6">
           <h4 class="font-weight-bold">Discover your next favorite thing</h4>
           <small class="text-muted">Product Hunt surfaces the best new products, every day. It's a place for product-loving enthusiasts to share and geek out about the latest mobile apps, websites, hardware projects, and tech creations.</small>
-          <div class="d-block mt-3">
+          {% if not user.is_authenticated %}<div class="d-block mt-3">
             <a type="button" class="btn btn-lg btn-default btn-ph border text-white small" href="{% url 'signup' %}">
-              SIGN UP
+              Sign Up
             </a>
-          </div>
+          </div>{% endif %}
         </div>
         <div class="col-md-6">
           <img class="img-fluid float-right" src="https://s3.producthunt.com/static/kitty_265x244%402x.png" width="240" height="220" alt="">
@@ -45,23 +46,18 @@
             <div class="col-md-auto">
               <img class="img-fluid" src="{{product.icon.url}}" width="80" height="80" alt="">
             </div>
-            <div class="col-md-8">
+            <div class="col-sm-auto">
               <div class="">
                 <h5 class="font-weight-light">{{product.title}}</h5>
                 <small class="text-muted d-block">{{product.trim}}</small>
-                <small class="text-muted d-block">{{product.votes}} votes</small>
               </div>
             </div>
-            <div class="col-md-auto">
-              <a type="button" class="btn btn-sm btn-default bg-white text-dark" href="javascript:{document.getElementById('upvote-{{product.id}}').submit()}">
-                <i class="fas fa-caret-up mr-2"></i>
-                <small class="text-dark">{{product.votes}}</small>
+            <div class="col-sm-auto flex-grow-1">{% is_voted product user as pvoted %}
+              <a href="{% url 'upvote' product.slug %}?next={{request.build_absolute_uri}}" class="btn btn-sm btn-default {% if not pvoted %}btn-success{% else %}btn-danger{% endif %} float-right">
+                {% if not pvoted %}<i class="fas fa-caret-up fa-fw"></i>{% else %}<i class="fas fa-caret-down fa-fw"></i>{% endif %}
+                <small class="text-dark font-weight-bold text-white">{{product|get_votes}}</small>
               </a>
             </div>
-            <form id='upvote-{{product.id}}' action="{% url 'hupvote' product.slug %}" method="post">
-              {% csrf_token %}
-              <input type="hidden" name="slug" value="{{product.slug}}">
-            </form>
           </div>
           <hr class="my-1">
           {% endfor %}
