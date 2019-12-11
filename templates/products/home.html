@@ -2,6 +2,12 @@
 {% load common %}
 
 {% block ehead %}
+<style media="screen">
+.item:hover{
+  background-color: #f8f9fa;
+  cursor: pointer;
+}
+</style>
 <title>Home</title>
 {% endblock %}
 
@@ -31,16 +37,36 @@
 
     <div class="row">
       <div class="col-md-8">
+        {% if s_results %}
+        <div class="bg-white border rounded mb-5">
+          <h5 class="px-4 pt-4 pb-2 font-weight-normal">Search Results for '{{request.GET.title}}'</h5>
+          <hr class="mx-3 my-1">
 
+          {% for product in s_results %}
+          <div onclick="window.location='{% url 'info' product.slug %}';" class="item row p-3">
+            <div class="col-md-auto">
+              <img class="img-fluid" src="{{product.icon.url}}" width="80" height="80" alt="">
+            </div>
+            <div class="col-sm-auto">
+              <div class="">
+                <h5 class="font-weight-light">{{product.title}}</h5>
+                <small class="text-muted d-block">{{product.trim}}</small>
+              </div>
+            </div>
+            <div class="col-sm-auto flex-grow-1">{% is_voted product user as pvoted %}
+              <a href="{% url 'upvote' product.slug %}?next={{request.build_absolute_uri}}" class="btn btn-sm btn-default {% if not pvoted %}btn-success{% else %}btn-danger{% endif %} float-right">
+                {% if not pvoted %}<i class="fas fa-caret-up fa-fw"></i>{% else %}<i class="fas fa-caret-down fa-fw"></i>{% endif %}
+                <small class="text-dark font-weight-bold text-white">{{product|get_votes}}</small>
+              </a>
+            </div>
+          </div>
+          <hr class="my-1">
+          {% endfor %}
+        </div>
+        {% endif %}
         <div class="bg-white border rounded">
           <h5 class="px-4 pt-4 pb-2 font-weight-normal">Newly Added Products</h5>
           <hr class="mx-3 my-1">
-          <style media="screen">
-          .item:hover{
-            background-color: #f8f9fa;
-            cursor: pointer;
-          }
-          </style>
           {% for product in products %}
           <div onclick="window.location='{% url 'info' product.slug %}';" class="item row p-3">
             <div class="col-md-auto">

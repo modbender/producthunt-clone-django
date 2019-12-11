@@ -13,7 +13,7 @@ def get_votes(product):
 def is_voted(product, user):
     if not user.is_authenticated:
         return False
-    return UserInput.objects.filter(user=user, product=product).exists()
+    return UserInput.objects.filter(user=user, product=product, upvote=True).exists()
 
 @register.simple_tag
 def get_recent_votes(product):

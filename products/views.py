@@ -6,14 +6,18 @@ from accounts.models import UserInput
 from .models import Product
 
 def home(request):
-    products = Product.objects.all
-    return render(request, 'products/home.html',{'products':products})
+    products = Product.objects.all()
+    s_results = None
+    search__title = request.GET.get('title')
+    if search__title:
+        s_results = Product.objects.filter(title__icontains=search__title)
+    return render(request, 'products/home.html', {'products':products, 's_results': s_results})
 
 @login_required
 def add(request):
     if request.method == 'POST':
         if request.POST['title'] and request.POST['desc'] and request.POST['desc'] and request.POST['url'] and request.POST['slug'] and request.FILES['image'] and request.FILES['icon']:
-            if Product.objects.get(slug = request.POST['slug']).exists():
+            if Product.objects.filter(slug = request.POST['slug']).exists():
                 return render(request, 'products/add.html',{'error':'Slug already used'})
             product = Product.objects.create(
                 title = request.POST['title'],
@@ -24,7 +28,7 @@ def add(request):
                 hunter = request.user,
                 slug = request.POST['slug'],
             )
-            return redirect('/product/'+ str(product.gslug()))
+            return redirect(product.get_absolute_url)
         else:
             return render(request, 'products/add.html',{'error':'All fields need to be filled'})
     else:

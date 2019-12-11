@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils import timezone
 
@@ -26,4 +27,4 @@ class Product(models.Model):
 
     @cached_property
     def get_absolute_url(self):
-        return reverse('info', kwargs={'slug': self.slug})
+        return reverse('info', args=[self.slug])
